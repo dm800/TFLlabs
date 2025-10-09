@@ -99,7 +99,6 @@ char pick_random(const char prev) {
     return ref[ind];
 }
 
-
 std::string pseudo_random(int length) {
     int size = 1;
     std::string answer;
@@ -112,6 +111,7 @@ std::string pseudo_random(int length) {
     return answer;
 }
 
+
 std::vector<size_t> find_subs(const std::string &src, const std::string &pat) {
     std::vector<size_t> result = {};
     size_t ind = src.find(pat);
@@ -123,49 +123,76 @@ std::vector<size_t> find_subs(const std::string &src, const std::string &pat) {
     return result;
 }
 
-std::vector<std::string> normals(const std::string &starting, const std::vector<std::string> *rulesleft,
-                                 const std::vector<std::string> *rulesright) {
-    std::vector<std::string> norms = {};
+
+int count(const std::string &src, const std::string &pat) {
+    int counter = 0;
+    int t = pat.size();
+    for (int i = 0; i < src.size() - t + 1; i++) {
+        if (src.substr(i, t) == pat) {
+            counter++;
+        }
+    }
+    return counter;
+}
+
+
+bool check_for_inv(const std::string &prev, const std::string &current) {
+    // Первый инвариант - длина
+    if (prev.size() != current.size()) {
+        return false;
+    }
+    // Второй - считаем дельту по буквам с и по буквам а. (Дельта а - дельта с) % 3 == 0.
+    int delta_a = count(current, "a") - count(prev, "a");
+    int delta_c = count(current, "c") - count(prev, "c");
+    if ((delta_a - delta_c) % 3 != 0) {
+        return false;
+    }
+    return true;
+}
+
+
+bool check_all_forms(const std::string &prev, const std::string &current,
+            const std::vector<std::string> *rulesleft,
+            const std::vector<std::string> *rulesright) {
+    if (!prev.empty() && !check_for_inv(prev, current)) {
+        return false;
+    }
+    bool result = true;
     bool found = false;
     for (int rulesind = 0; rulesind != rulesleft->size(); rulesind++) {
         const std::string &key = rulesleft->at(rulesind);
-        std::vector<size_t> indexes = find_subs(starting, key);
+        std::vector<size_t> indexes = find_subs(current, key);
         if (!indexes.empty()) {
             found = true;
             for (auto ind: indexes) {
-                std::string nstr = starting;
+                std::string nstr = current;
                 nstr.replace(ind, key.size(), rulesright->at(rulesind));
-                std::vector<std::string> another = normals(nstr, rulesleft, rulesright);
-                for (const auto &elem: another) {
-                    if (!std::ranges::contains(norms, elem)) {
-                        norms.push_back(elem);
-                    }
-                }
+                result = result && check_all_forms(current, nstr, rulesleft, rulesright);
             }
         }
     }
-    if (!found) {
-        norms.push_back(starting);
+    if (found == true) {
+        return result;
     }
-    return norms;
+    return true;
 }
+
 
 int main() {
     int count = 0;
     int correct = 0;
     std::cout << "Starting " << TESTS_COUNT << " tests" << std::endl;
     while (count < TESTS_COUNT) {
-        std::string starting = pseudo_random(STRING_LENGTH);
-        std::vector<std::string> result = normals(starting, &rulesleft1, &rulesright1);
-        std::uniform_int_distribution<int> dist(0, result.size() - 1);
-        const std::string &checking = result[dist(rd)];
-        std::vector<std::string> norms1 = normals(starting, &rulesleft2, &rulesright2);
-        std::vector<std::string> norms2 = normals(checking, &rulesleft2, &rulesright2);
-        for (const auto &i: norms2) {
-            if (std::ranges::contains(norms1, i)) {
-                correct++;
-                break;
-            }
+        std::string generated = pseudo_random(STRING_LENGTH);
+        bool checker = check_all_forms("", generated, &rulesleft1, &rulesright1);
+        if (!checker) {
+            std::cout << generated;
+            break;
+        }
+        // проверка, что инвариант работает на строке с изначальными правилами
+        bool result = check_all_forms("", generated, &rulesleft2, &rulesright2);
+        if (result == true) {
+            correct++;
         }
         count++;
     }
