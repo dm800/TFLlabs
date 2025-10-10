@@ -51,7 +51,7 @@ std::vector<std::string> rulesleft2 = {
 };
 
 std::vector<std::string> rulesright2 = {
-    "bbbb",
+    "aaab",
     "cabc",
     "aaa",
     "aaa",
