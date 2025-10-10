@@ -3,13 +3,15 @@
 #include <string>
 #include <random>
 #include <algorithm>
-#define TESTS_COUNT 20
+#include <unordered_map>
+#define TESTS_COUNT 100
 #define STRING_LENGTH 10
 
 
 std::random_device rd;
 
 std::vector<std::string> rulesleft1 = {
+    "abca",
     "bcab",
     "cccc",
     "abc",
@@ -18,6 +20,7 @@ std::vector<std::string> rulesleft1 = {
     "abcabc"
 };
 std::vector<std::string> rulesright1 = {
+    "aaaa",
     "bbbb",
     "cabc",
     "aaa",
@@ -31,15 +34,14 @@ std::vector<std::string> rulesleft2 = {
     "abc",
     "bbb",
     "ccc",
-    "abcabc",
+    "aabbcc",
     "baaa",
     "caaa",
     "aaacc",
     "aaabab",
     "aaabbc",
-    "aaacab",
     "aaacbc",
-    "aabbcc",
+    "aaacab",
     "aaaaabb",
     "aaabaac",
     "aaabacc",
@@ -49,19 +51,19 @@ std::vector<std::string> rulesleft2 = {
     "aaacbab",
     "aaacbbc"
 };
+
 std::vector<std::string> rulesright2 = {
     "bbbb",
     "cabc",
     "aaa",
-    "abc",
-    "abc",
-    "aabbcc",
+    "aaa",
+    "aaa",
+    "aaaaaa",
     "aaab",
     "aaac",
     "aaaab",
     "aaaaac",
     "aaabaa",
-    "aaaaaa",
     "aaacaa",
     "aaaaaa",
     "aaaaaac",
@@ -73,6 +75,7 @@ std::vector<std::string> rulesright2 = {
     "aaacaac",
     "aaacbaa"
 }; // правила итоговой TRS
+
 
 std::vector<std::string> letters = {"a", "b", "c"};
 
@@ -123,8 +126,13 @@ std::vector<size_t> find_subs(const std::string &src, const std::string &pat) {
     return result;
 }
 
+std::unordered_map<std::string, std::vector<std::string>> cache = {};
+
 std::vector<std::string> normals(const std::string &starting, const std::vector<std::string> *rulesleft,
                                  const std::vector<std::string> *rulesright) {
+    if (cache.contains(starting)) {
+        return cache[starting];
+    }
     std::vector<std::string> norms = {};
     bool found = false;
     for (int rulesind = 0; rulesind != rulesleft->size(); rulesind++) {
@@ -147,6 +155,7 @@ std::vector<std::string> normals(const std::string &starting, const std::vector<
     if (!found) {
         norms.push_back(starting);
     }
+    cache[starting] = norms;
     return norms;
 }
 
@@ -161,18 +170,33 @@ int main() {
         const std::string &checking = result[dist(rd)];
         std::vector<std::string> norms1 = normals(starting, &rulesleft2, &rulesright2);
         std::vector<std::string> norms2 = normals(checking, &rulesleft2, &rulesright2);
+        bool passed = false;
         for (const auto &i: norms2) {
             if (std::ranges::contains(norms1, i)) {
                 correct++;
+                passed = true;
                 break;
             }
+        }
+        if (!passed) {
+            std::cout << "Didn't pass " << starting << std::endl;
+            std::cout << "Random normal with T: " << checking << std::endl;
+            std::cout << "Normals with T' from starting: " << std::endl;
+            for (const auto &i: norms1) {
+                std::cout << i << " ";
+            }
+            std::cout << std::endl << "Normals with T' from normal: " << std::endl;
+            for (const auto &i: norms2) {
+                std::cout << i << " ";
+            }
+            std::cout << std::endl;
         }
         count++;
     }
     if (count == correct) {
         std::cout << "Everything passed the test" << std::endl;
     } else {
-        std::cout << "Passed " << correct << "out of " << count << std::endl;
+        std::cout << "Passed " << correct << " out of " << count << std::endl;
     }
     return 0;
 }

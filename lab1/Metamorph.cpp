@@ -3,7 +3,8 @@
 #include <string>
 #include <random>
 #include <algorithm>
-#define TESTS_COUNT 20
+#include <unordered_map>
+#define TESTS_COUNT 100
 #define STRING_LENGTH 10
 
 
@@ -31,15 +32,14 @@ std::vector<std::string> rulesleft2 = {
     "abc",
     "bbb",
     "ccc",
-    "abcabc",
+    "aabbcc",
     "baaa",
     "caaa",
     "aaacc",
     "aaabab",
     "aaabbc",
-    "aaacab",
     "aaacbc",
-    "aabbcc",
+    "aaacab",
     "aaaaabb",
     "aaabaac",
     "aaabacc",
@@ -49,19 +49,19 @@ std::vector<std::string> rulesleft2 = {
     "aaacbab",
     "aaacbbc"
 };
+
 std::vector<std::string> rulesright2 = {
     "bbbb",
     "cabc",
     "aaa",
-    "abc",
-    "abc",
-    "aabbcc",
+    "aaa",
+    "aaa",
+    "aaaaaa",
     "aaab",
     "aaac",
     "aaaab",
     "aaaaac",
     "aaabaa",
-    "aaaaaa",
     "aaacaa",
     "aaaaaa",
     "aaaaaac",
@@ -150,12 +150,17 @@ bool check_for_inv(const std::string &prev, const std::string &current) {
     return true;
 }
 
+std::unordered_map<std::string, bool> cache = {};
+
 
 bool check_all_forms(const std::string &prev, const std::string &current,
             const std::vector<std::string> *rulesleft,
             const std::vector<std::string> *rulesright) {
     if (!prev.empty() && !check_for_inv(prev, current)) {
         return false;
+    }
+    if (cache.contains(current)) {
+        return cache[current];
     }
     bool result = true;
     bool found = false;
@@ -174,6 +179,7 @@ bool check_all_forms(const std::string &prev, const std::string &current,
     if (found == true) {
         return result;
     }
+    cache[current] = true;
     return true;
 }
 
