@@ -28,18 +28,17 @@ std::vector<std::string> rulesright1 = {
 }; // правила изначальной TRS
 std::vector<std::string> rulesleft2 = {
     "bcab",
-    "cccc",
+    "caaa",
     "abc",
     "bbb",
     "ccc",
     "aabbcc",
     "baaa",
-    "caaa",
     "aaacc",
     "aaabab",
     "aaabbc",
-    "aaacbc",
     "aaacab",
+    "aaacbc",
     "aaaaabb",
     "aaabaac",
     "aaabacc",
@@ -52,18 +51,17 @@ std::vector<std::string> rulesleft2 = {
 
 std::vector<std::string> rulesright2 = {
     "aaab",
-    "cabc",
+    "aaac",
     "aaa",
     "aaa",
     "aaa",
     "aaaaaa",
     "aaab",
-    "aaac",
     "aaaab",
     "aaaaac",
     "aaabaa",
-    "aaacaa",
     "aaaaaa",
+    "aaacaa",
     "aaaaaac",
     "aaaaaaa",
     "aaabaab",
@@ -73,6 +71,7 @@ std::vector<std::string> rulesright2 = {
     "aaacaac",
     "aaacbaa"
 }; // правила итоговой TRS
+
 
 std::vector<std::string> letters = {"a", "b", "c"};
 
