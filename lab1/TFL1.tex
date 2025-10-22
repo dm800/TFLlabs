@@ -1,0 +1,128 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathtools}
+\usepackage{booktabs,array}
+\usepackage{forest}
+\usepackage[hidelinks]{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+
+\title{Лабораторная работа №1}
+\author{Лимонов Дмитрий ИУ9-52Б}
+
+\begin{document}
+\maketitle
+
+\section*{Изначальная система переписывания}
+
+Рассматривается система переписывания строк (вариант 15), где алфавит
+\[
+\Sigma = \{a,b,c\},
+\]
+а множество правил задано следующим образом:
+\[
+\begin{aligned}
+\texttt{abca} &\;\to\; \texttt{aaaa},\\
+\texttt{bcab} &\;\to\; \texttt{bbbb},\\
+\texttt{cabc} &\;\to\; \texttt{cccc},\\
+\texttt{abc}  &\;\to\; \texttt{aaa},\\
+\texttt{abc}  &\;\to\; \texttt{bbb},\\
+\texttt{abc}  &\;\to\; \texttt{ccc},\\
+\texttt{aabbcc} &\;\to\; \texttt{abcabc}.
+\end{aligned}
+\]
+
+\section*{Завершимость}
+
+Рассмотрим правила переписывания. Все правила, кроме последнего, могут быть применены только в том случае, если в строке есть подстрока из 3 различных символов, идущих подряд (\texttt{abc, bac, cab, ...}), при этом все правила как раз убирают эти различные символы. Последнее же правило может быть применено в случае, если встречается подстрока \texttt{bb}. Так как среди предыдущих правил нет ни одного способа пополнить количество именно \texttt{bb}, то, в какой-то момент, переписывания остановятся
+
+\section*{Конечность}
+
+Исходя из структуры правил можно заметить, что ни одно из них не уменьшает длины изначальной строки. Значит, как минимум, существуют классы эквивалентности по длине строки.
+
+
+\section*{Конфлюэнтность}
+
+Изначальная система не является конфлюэнтной ни локально, ни глобально. Это можно увидеть на примере строки 
+\texttt{abc}:
+
+\begin{center}
+\begin{forest}
+for tree={
+  draw,
+  rounded corners,
+  align=center,
+  s sep=10mm,
+  l sep=12mm,
+  edge={-stealth, thick}, 
+}
+[abc
+  [aaa]
+  [bbb]
+  [ccc]
+]
+\end{forest}
+\end{center}
+
+Дополним систему по алгоритму Кнута-Бендикса. Сначала введём лексикографический порядок в систему и переупорядочим правила:
+
+\[
+\begin{aligned}
+\texttt{abca} &\;\to\; \texttt{aaaa},\\
+\texttt{bcab} &\;\to\; \texttt{bbbb},\\
+\texttt{cccc} &\;\to\; \texttt{cabc},\\
+\texttt{abc}  &\;\to\; \texttt{aaa},\\
+\texttt{bbb}  &\;\to\; \texttt{abc},\\
+\texttt{ccc}  &\;\to\; \texttt{abc},\\
+\texttt{abcabc} &\;\to\; \texttt{aabbcc}.
+\end{aligned}
+\]
+
+Далее, мною была написана программа по подбору новых правил. Исходный код программы можно найти \href{https://github.com/dm800/TFLcheck}{\textcolor{blue}{здесь}}. В результате выполнения программы стало ясно, что в системе при пополнении возникает бесконечное количество правил, поэтому возьмём приближённую эквивалентной систему (она будет полностью эквивалентна на строках длиной 7 и меньше.):
+
+\[
+\begin{alignedat}{3}
+\texttt{bcab}    &\;\to\; \texttt{aaab}   & \qquad \texttt{caaa}    &\;\to\; \texttt{aaac}   & \qquad \texttt{abc}     &\;\to\; \texttt{aaa}    \\[2pt]
+\texttt{bbb}     &\;\to\; \texttt{aaa}    & \qquad \texttt{ccc}     &\;\to\; \texttt{aaa}    & \qquad \texttt{aabbcc}  &\;\to\; \texttt{aaaaaa} \\[2pt]
+\texttt{baaa}    &\;\to\; \texttt{aaab}   & \qquad \texttt{aaacc}   &\;\to\; \texttt{aaaab}  & \qquad \texttt{aaabab}  &\;\to\; \texttt{aaaaac} \\[2pt]
+\texttt{aaabbc}  &\;\to\; \texttt{aaabaa} & \qquad \texttt{aaacab}  &\;\to\; \texttt{aaaaaa} & \qquad \texttt{aaacbc}  &\;\to\; \texttt{aaacaa} \\[2pt]
+\texttt{aaaaabb} &\;\to\; \texttt{aaaaaac}& \qquad \texttt{aaabaac} &\;\to\; \texttt{aaaaaaa}& \qquad \texttt{aaabacc} &\;\to\; \texttt{aaabaab}\\[2pt]
+\texttt{aaabbaa} &\;\to\; \texttt{aaaaaac}& \qquad \texttt{aaabbab} &\;\to\; \texttt{aaaaaaa}& \qquad \texttt{aaacacc} &\;\to\; \texttt{aaacaab}\\[2pt]
+\texttt{aaacbab} &\;\to\; \texttt{aaacaac}& \qquad \texttt{aaacbbc} &\;\to\; \texttt{aaacbaa}& \qquad {}                &                         \\
+\end{alignedat}
+\]
+
+
+\section*{Тестирование}
+\subsection*{Фаззинг}
+Исходный код программы для фаззинг-тестирования может быть найден в репозитории. Основная идея - сгенерировать случайное слово, далее привести его к нормальной форме в $\tau$. После этого уже изначальное слово и полученную на предыдущем шаге нормальную форму перевести в общее слово, но уже в $\tau'$. В моей программе, для простоты реализации, этим словом также будет нормальная форма, то есть:
+
+
+\[
+\begin{aligned}
+\begin{tikzpicture}[>=Stealth]
+  \node (w)   {$w$};
+  \node (wp)  [below=1.6cm of w] {$w'$};                    
+  \node (wpp) [below right=1.2cm and 2.4cm of wp] {$w''$}; 
+  
+  \draw[->] (w)  -- node[left] {$\tau$}  (wp);
+  \draw[->] (wp) -- node[above] {$\tau'$} (wpp);
+  \draw[->] (w)  to[bend left=15] node[above right] {$\tau'$} (wpp);
+\end{tikzpicture}
+\end{aligned}
+\]
+
+
+\subsection*{Метаморфное тестирование}
+Исходный код программы для метаморфного тестирования также может быть найден в репозитории. В качестве инвариантов были выбраны две характеристики:
+
+1. Длина слова 
+
+2. $(\Delta A - \Delta C) mod 3= 0$ , где $\Delta A$ и $\Delta C$ - разность числа букв \texttt{a} или \texttt{c} соответственно.
+
+
+\end{document}
