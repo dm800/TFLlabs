@@ -1,169 +1,113 @@
 #include "DFA.h"
 
-bool run_automataDFA(std::string& str) {
-    return Dq0(str, 0);
+DFA::DFA(std::vector<std::unordered_map<char, int>> transitions,
+         std::unordered_set<int> finals) {
+    this->transitions = std::move(transitions);
+    this->finals = std::move(finals);
 }
 
-bool Dq0(std::string& str, size_t cur) {
-    if (cur == str.length()) {
+bool DFA::run(const std::string& input) const {
+    int state = 0;
+
+    for (char ch : input) {
+
+        const std::unordered_map<char, int>& mp = this->transitions[state];
+        auto it = mp.find(ch);
+
+        if (it == mp.end()) {
+            return false;
+        }
+
+        state = it->second;
+    }
+
+    if (this->finals.find(state) != this->finals.end()) {
         return true;
     }
-    if (str[cur] == 'a') {
-        return Dq1(str, cur + 1);
-    }
-    return Dq2(str, cur + 1);
-}
 
-bool Dq1(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return false;
-    }
-    if (str[cur] == 'a') {
-        return Dq3(str, cur + 1);
-    }
-    return Dq4(str, cur + 1);
-}
-
-bool Dq2(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return true;
-    }
-    if (str[cur] == 'a') {
-        return Dq5(str, cur + 1);
-    }
-    return Dq2(str, cur + 1);
-}
-
-bool Dq3(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return true;
-    }
-    if (str[cur] == 'a') {
-        return Dq1(str, cur + 1);
-    }
-    return Dq6(str, cur + 1);
-}
-
-bool Dq4(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return false;
-    }
-    if (str[cur] == 'a') {
-        return Dq7(str, cur + 1);
-    }
-    return Dq4(str, cur + 1);
-}
-
-bool Dq5(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return false;
-    }
-    if (str[cur] == 'a') {
-        return Dq3(str, cur + 1);
-    }
-    return Dq8(str, cur + 1);
-}
-
-bool Dq6(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return false;
-    }
-    if (str[cur] == 'a') {
-        return Dq9(str, cur + 1);
-    }
-    return Dq7(str, cur + 1);
-}
-
-bool Dq7(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return true;
-    }
-    if (str[cur] == 'a') {
-        return Dq1(str, cur + 1);
-    }
-    return Dq10(str, cur + 1);
-}
-
-bool Dq8(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return false;
-    }
-    if (str[cur] == 'a') {
-        return Dq7(str, cur + 1);
-    }
-    return Dq11(str, cur + 1);
-}
-
-bool Dq9(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return false;
-    }
-    if (str[cur] == 'a') {
-        return Dq12(str, cur + 1);
-    }
-    return Dq13(str, cur + 1);
-}
-
-bool Dq10(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return false;
-    }
-    if (str[cur] == 'a') {
-        return Dq9(str, cur + 1);
-    }
-    return Dq12(str, cur + 1);
-}
-
-bool Dq11(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return true;
-    }
-    if (str[cur] == 'a') {
-        return Dq14(str, cur + 1);
-    }
-    return Dq1(str, cur + 1);
-}
-
-bool Dq12(std::string& str, size_t cur) {
     return false;
 }
 
-bool Dq13(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return false;
-    }
-    if (str[cur] == 'a') {
-        return Dq12(str, cur + 1);
-    }
-    return Dq7(str, cur + 1);
-}
+bool run_automataDFA(const std::string& str) {
+    std::vector<std::unordered_map<char, int>> transitions(17);
 
-bool Dq14(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return true;
-    }
-    if (str[cur] == 'a') {
-        return Dq15(str, cur + 1);
-    }
-    return Dq1(str, cur + 1);
-}
+    // q0
+    transitions[0]['a'] = 1;
+    transitions[0]['b'] = 2;
 
-bool Dq15(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return true;
-    }
-    if (str[cur] == 'a') {
-        return Dq15(str, cur + 1);
-    }
-    return Dq16(str, cur + 1);
-}
+    // q1
+    transitions[1]['a'] = 3;
+    transitions[1]['b'] = 4;
 
-bool Dq16(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return false;
-    }
-    if (str[cur] == 'a') {
-        return Dq3(str, cur + 1);
-    }
-    return Dq11(str, cur + 1);
+    // q2
+    transitions[2]['a'] = 5;
+    transitions[2]['b'] = 2;
+
+    // q3
+    transitions[3]['a'] = 1;
+    transitions[3]['b'] = 6;
+
+    // q4
+    transitions[4]['a'] = 7;
+    transitions[4]['b'] = 4;
+
+    // q5
+    transitions[5]['a'] = 3;
+    transitions[5]['b'] = 8;
+
+    // q6
+    transitions[6]['a'] = 9;
+    transitions[6]['b'] = 7;
+
+    // q7
+    transitions[7]['a'] = 1;
+    transitions[7]['b'] = 10;
+
+    // q8
+    transitions[8]['a'] = 7;
+    transitions[8]['b'] = 11;
+
+    // q9
+    transitions[9]['a'] = 12;
+    transitions[9]['b'] = 13;
+
+    // q10
+    transitions[10]['a'] = 9;
+    transitions[10]['b'] = 12;
+
+    // q11
+    transitions[11]['a'] = 14;
+    transitions[11]['b'] = 1;
+
+    // q12
+    transitions[12]['a'] = 12;
+    transitions[12]['b'] = 12;
+
+    // q13
+    transitions[13]['a'] = 12;
+    transitions[13]['b'] = 7;
+
+    // q14
+    transitions[14]['a'] = 15;
+    transitions[14]['b'] = 1;
+
+    // q15
+    transitions[15]['a'] = 15;
+    transitions[15]['b'] = 16;
+
+    // q16
+    transitions[16]['a'] = 3;
+    transitions[16]['b'] = 11;
+
+    std::unordered_set<int> finals;
+    finals.insert(0);
+    finals.insert(2);
+    finals.insert(3);
+    finals.insert(7);
+    finals.insert(11);
+    finals.insert(14);
+    finals.insert(15);
+
+    DFA dfa(std::move(transitions), std::move(finals));
+    return dfa.run(str);
 }

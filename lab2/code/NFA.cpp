@@ -1,66 +1,70 @@
 #include "NFA.h"
 
+#include <algorithm>
 
-bool Nq0(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return true;
+NFA::NFA(std::vector<std::unordered_map<char, std::vector<int>>> transitions,
+         std::unordered_set<int> finals):
+transitions(std::move(transitions)),
+finals(std::move(finals)) {}
+
+bool NFA::run(const std::string& input) const {
+    std::unordered_set<int> cur;
+    cur.insert(0);
+
+    for (char ch : input) {
+        std::unordered_set<int> next;
+
+        for (int s : cur) {
+            const std::unordered_map<char, std::vector<int>>& mp = transitions[s];
+            auto it = mp.find(ch);
+
+            if (it == mp.end()) {
+                continue;
+            }
+
+            const std::vector<int>& tos = it->second;
+            for (int to : tos) {
+                next.insert(to);
+            }
+        }
+
+        cur = std::move(next);
+
+        if (cur.empty()) {
+            return false;
+        }
     }
-    if (str[cur] == 'a') {
-        return Nq1(str, cur + 1) or Nq3(str, cur + 1);
-    }
-    return Nq0(str, cur + 1) or Nq3(str, cur + 1);
+
+    return std::any_of(cur.begin(), cur.end(),
+        [&](int s) { return finals.count(s) != 0; });
+
 }
 
-bool Nq1(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return false;
-    }
-    if (str[cur] == 'a') {
-        return Nq2(str, cur + 1);
-    }
-    return Nq1(str, cur + 1);
-}
+bool run_automataNFA(const std::string& str) {
+    std::vector<std::unordered_map<char, std::vector<int>>> transitions(6);
 
-bool Nq2(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return true;
-    }
-    if (str[cur] == 'a') {
-        return Nq1(str, cur + 1) or Nq3(str, cur + 1);
-    }
-    return Nq3(str, cur + 1);
-}
+    transitions[0]['a'].push_back(1);
+    transitions[0]['a'].push_back(3);
+    transitions[0]['b'].push_back(0);
+    transitions[0]['b'].push_back(3);
 
-bool Nq3(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return false;
-    }
-    if (str[cur] == 'a') {
-        return Nq4(str, cur + 1);
-    }
-    return false;
-}
+    transitions[1]['a'].push_back(2);
+    transitions[1]['b'].push_back(1);
 
-bool Nq4(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return false;
-    }
-    if (str[cur] == 'a') {
-        return false;
-    }
-    return Nq5(str, cur + 1);
-}
+    transitions[2]['a'].push_back(1);
+    transitions[2]['a'].push_back(3);
+    transitions[2]['b'].push_back(3);
 
-bool Nq5(std::string& str, size_t cur) {
-    if (cur == str.length()) {
-        return false;
-    }
-    if (str[cur] == 'a') {
-        return false;
-    }
-    return Nq2(str, cur + 1);
-}
+    transitions[3]['a'].push_back(4);
 
-bool run_automataNFA(std::string& str) {
-    return Nq0(str, 0);
+    transitions[4]['b'].push_back(5);
+
+    transitions[5]['b'].push_back(2);
+
+    std::unordered_set<int> finals;
+    finals.insert(0);
+    finals.insert(2);
+
+    NFA nfa(std::move(transitions), std::move(finals));
+    return nfa.run(str);
 }

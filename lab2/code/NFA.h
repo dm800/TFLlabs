@@ -1,11 +1,20 @@
 #pragma once
+
 #include <string>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
 
-bool Nq0(std::string&, size_t);
-bool Nq1(std::string&, size_t);
-bool Nq2(std::string&, size_t);
-bool Nq3(std::string&, size_t);
-bool Nq4(std::string&, size_t);
-bool Nq5(std::string&, size_t);
+class NFA {
+public:
+    NFA(std::vector<std::unordered_map<char, std::vector<int>>> transitions,
+        std::unordered_set<int> finals);
 
-bool run_automataNFA(std::string&);
+    bool run(const std::string& input) const;
+
+private:
+    std::vector<std::unordered_map<char, std::vector<int>>> transitions;
+    std::unordered_set<int> finals;
+};
+
+bool run_automataNFA(const std::string& str);
