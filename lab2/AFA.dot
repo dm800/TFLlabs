@@ -1,7 +1,7 @@
 digraph NFA {
     rankdir=LR;
     start [shape=none,label=""];
-    start -> eps;
+    start -> AND;
 
     node [shape=circle];
 
@@ -11,9 +11,9 @@ digraph NFA {
     s1 [shape=doublecircle];
     s2 [shape=doublecircle];
     s3 [shape=doublecircle];
-    eps [shape=rectangle];
+    AND [shape=rectangle];
 
-    eps -> s0 [label="ε"];
+    AND -> s0 [label="ε"];
     s0 -> s1 [label="a"];
     s0 -> s0 [label="b"];
     s1 -> s2 [label="b"];
@@ -27,7 +27,7 @@ digraph NFA {
     s5 -> s6 [label="b"];
     s6 -> s0 [label="b"];
 
-    eps -> q0 [label="ε"];
+    AND -> q0 [label="ε"];
     q0 -> q1 [label="a"];
     q0 -> q3 [label="a,b"];
     q0 -> q0 [label="b"];
