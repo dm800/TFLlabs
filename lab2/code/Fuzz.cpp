@@ -1,5 +1,6 @@
 #include "NFA.h"
 #include "DFA.h"
+#include "AFA.h"
 #include <iostream>
 #include <random>
 #include <string>
@@ -63,10 +64,11 @@ int main() {
         bool reg = std::regex_match(str, normal);
         bool DFA = run_automataDFA(str);
         bool NFA = run_automataNFA(str);
+        bool AFA = run_automataAFA(str);
         bool EXT = std::regex_match(str, extended);
-        std::cout << reg << " " << DFA << " " << NFA << " " << EXT << " " << str << std::endl;
-        if ((reg != DFA) or (reg != NFA) or (reg != EXT)) {
-            std::cout << "FOUND ERROR\nreg: " << reg << "\nDFA: " << DFA << "\nNFA: " << NFA << "\nEXT: " << EXT << std::endl;
+        std::cout << reg << " " << DFA << " " << NFA << " " << AFA << " " << EXT << " " << str << std::endl;
+        if ((reg != DFA) or (reg != NFA) or (reg != EXT) or (reg != AFA)) {
+            std::cout << "FOUND ERROR\nreg: " << reg << "\nDFA: " << DFA << "\nNFA: " << NFA << "\nAFA:" << AFA << "\nEXT: " << EXT << std::endl;
             c++;
         }
         if (reg == 1) {
@@ -74,9 +76,9 @@ int main() {
         }
     }
     if (c != 0) {
-        std::cout << "TEST FAILED";
+        std::cout << "TEST FAILED" << std::endl;
     } else {
-        std::cout << "TEST PASSED";
+        std::cout << "TEST PASSED" << std::endl;
     }
 
     return 0;

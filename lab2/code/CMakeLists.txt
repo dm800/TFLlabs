@@ -8,4 +8,5 @@ add_executable(lab2
         Fuzz.cpp
         NFA.cpp
         DFA.cpp
+        AFA.cpp
 )
